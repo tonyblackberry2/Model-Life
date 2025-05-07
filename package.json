@@ -1,0 +1,12 @@
+{
+    "name": "meu-projeto-firebase",
+    "version": "1.0.0",
+    "description": "Model-Life",
+    "scripts": {
+      "start": "firebase serve",
+      "deploy": "firebase deploy"
+    },
+    "dependencies": {},
+    "devDependencies": {}
+  }
+  
