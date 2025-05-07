@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -19,12 +20,13 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
+const db = getFirestore(app);
 
 // Variáveis globais
 let servicoSelecionado = '';
 let usuarioLogado = null;
 
-// Função para abrir o modal de opções
+// Funções globais
 window.abrirModalOpcoes = function(servico) {
     const modal = document.getElementById('modalOpcoes');
     modal.style.display = 'flex';
@@ -33,7 +35,6 @@ window.abrirModalOpcoes = function(servico) {
     titulo.textContent = `${servico} - Como deseja proceder?`;
 }
 
-// Função para abrir o formulário
 window.abrirFormulario = function(tipo) {
     const modalOpcoes = document.getElementById('modalOpcoes');
     const modalFormulario = document.getElementById('modalFormulario');
@@ -57,7 +58,6 @@ window.abrirFormulario = function(tipo) {
     modalFormulario.dataset.tipo = tipo;
 }
 
-// Alternar entre login e cadastro
 window.alternarFormulario = function() {
     const login = document.getElementById('formLogin');
     const cadastro = document.getElementById('formCadastro');
@@ -74,7 +74,6 @@ window.alternarFormulario = function() {
     }
 }
 
-// Voltar para a escolha entre prestar ou usar serviço
 window.voltarEscolha = function() {
     const modalFormulario = document.getElementById('modalFormulario');
     const modalOpcoes = document.getElementById('modalOpcoes');
@@ -95,8 +94,8 @@ window.onclick = function(event) {
     }
 }
 
-// Manipula envio do formulário de cadastro
-document.getElementById('formCadastro').addEventListener('submit', function(e) {
+// Função para cadastrar usuário no Firestore
+window.cadastrarUsuario = async function(e) {
     e.preventDefault();
 
     const senha = document.getElementById('senha').value;
@@ -107,40 +106,42 @@ document.getElementById('formCadastro').addEventListener('submit', function(e) {
         return;
     }
 
-    const formData = {
-        nome: document.getElementById('nome').value,
-        dataNascimento: document.getElementById('dataNascimento').value,
-        email: document.getElementById('email').value,
-        senha: senha,
-        perguntaSecreta: document.getElementById('perguntaSecreta').value,
-        respostaSecreta: document.getElementById('respostaSecreta').value,
-        tipo: document.getElementById('modalFormulario').dataset.tipo,
-        servico: servicoSelecionado
-    };
+    try {
+        const docRef = await addDoc(collection(db, "usuarios"), {
+            nome: document.getElementById('nome').value,
+            dataNascimento: document.getElementById('dataNascimento').value,
+            email: document.getElementById('email').value,
+            senha: senha, // Nota: Em produção, você deve usar hash para senhas
+            perguntaSecreta: document.getElementById('perguntaSecreta').value,
+            respostaSecreta: document.getElementById('respostaSecreta').value,
+            tipo: document.getElementById('modalFormulario').dataset.tipo,
+            servico: servicoSelecionado,
+            dataCadastro: new Date()
+        });
 
-    // Simulação de cadastro
-    console.log('Dados do formulário:', formData);
+        // Simular armazenamento do usuário
+        usuarioLogado = {
+            nome: document.getElementById('nome').value,
+            tipo: document.getElementById('modalFormulario').dataset.tipo,
+            servico: servicoSelecionado
+        };
 
-    // Simular armazenamento do usuário
-    usuarioLogado = {
-        nome: formData.nome,
-        tipo: formData.tipo,
-        servico: formData.servico
-    };
+        alert('Cadastro realizado com sucesso!');
+        
+        // Fechar o modal de cadastro e limpar o formulário
+        document.getElementById('modalFormulario').style.display = 'none';
+        document.getElementById('formCadastro').reset();
 
-    // Mensagem de confirmação
-    alert('Cadastro realizado com sucesso!');
-
-    // Fechar o modal de cadastro e limpar o formulário
-    document.getElementById('modalFormulario').style.display = 'none';
-    this.reset();
-
-    // Atualizar interface para mostrar o perfil do usuário
-    exibirPerfil();
-});
+        // Atualizar interface para mostrar o perfil do usuário
+        exibirPerfil();
+    } catch (error) {
+        console.error("Erro ao cadastrar:", error);
+        alert("Erro ao cadastrar usuário. Por favor, tente novamente.");
+    }
+}
 
 // Exibir o perfil do usuário logado
-function exibirPerfil() {
+window.exibirPerfil = function() {
     if (usuarioLogado) {
         const perfilContainer = document.getElementById('perfilContainer');
         perfilContainer.innerHTML = `
