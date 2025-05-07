@@ -31,5 +31,10 @@
     "bugs": {
         "url": "https://github.com/tonyblackberry2/Model-Life/issues"
     },
-    "homepage": "https://github.com/tonyblackberry2/Model-Life#readme"
+    "homepage": "https://github.com/tonyblackberry2/Model-Life#readme",
+    "devDependencies": {
+        "autoprefixer": "^10.4.21",
+        "postcss": "^8.5.3",
+        "tailwindcss": "^4.1.5"
+    }
 }

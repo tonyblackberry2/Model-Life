@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Model Life - Clínica Modelar</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style/style.css">
 
@@ -202,6 +201,61 @@
         window.firebaseDb = db;
         window.firebaseAuth = auth;
 
+        // Funções globais
+        window.abrirModalOpcoes = function(servico) {
+            const modal = document.getElementById('modalOpcoes');
+            modal.style.display = 'flex';
+            window.servicoSelecionado = servico;
+            const titulo = modal.querySelector('h3');
+            titulo.textContent = `${servico} - Como deseja proceder?`;
+        }
+
+        window.abrirFormulario = function(tipo) {
+            const modalOpcoes = document.getElementById('modalOpcoes');
+            const modalFormulario = document.getElementById('modalFormulario');
+            const formLogin = document.getElementById('formLogin');
+            const formCadastro = document.getElementById('formCadastro');
+            const titulo = document.getElementById('formTitulo');
+
+            modalOpcoes.style.display = 'none';
+            modalFormulario.style.display = 'flex';
+
+            if (tipo === 'cadastro') {
+                formLogin.classList.add('hidden');
+                formCadastro.classList.remove('hidden');
+                titulo.textContent = 'Cadastro';
+            } else {
+                formLogin.classList.remove('hidden');
+                formCadastro.classList.add('hidden');
+                titulo.textContent = 'Login';
+            }
+
+            modalFormulario.dataset.tipo = tipo;
+        }
+
+        window.alternarFormulario = function() {
+            const login = document.getElementById('formLogin');
+            const cadastro = document.getElementById('formCadastro');
+            const titulo = document.getElementById('formTitulo');
+
+            if (login.classList.contains('hidden')) {
+                login.classList.remove('hidden');
+                cadastro.classList.add('hidden');
+                titulo.textContent = 'Login';
+            } else {
+                login.classList.add('hidden');
+                cadastro.classList.remove('hidden');
+                titulo.textContent = 'Cadastro';
+            }
+        }
+
+        window.voltarEscolha = function() {
+            const modalFormulario = document.getElementById('modalFormulario');
+            const modalOpcoes = document.getElementById('modalOpcoes');
+            modalFormulario.style.display = 'none';
+            modalOpcoes.style.display = 'flex';
+        }
+
         // Verificar estado da autenticação
         onAuthStateChanged(auth, (user) => {
             if (user) {
@@ -351,61 +405,6 @@
                 console.error("Erro ao fazer logout:", error);
                 alert("Erro ao fazer logout. Por favor, tente novamente.");
             }
-        }
-
-        // Make functions available globally
-        window.abrirModalOpcoes = function(servico) {
-            const modal = document.getElementById('modalOpcoes');
-            modal.style.display = 'flex';
-            window.servicoSelecionado = servico;
-            const titulo = modal.querySelector('h3');
-            titulo.textContent = `${servico} - Como deseja proceder?`;
-        }
-
-        window.abrirFormulario = function(tipo) {
-            const modalOpcoes = document.getElementById('modalOpcoes');
-            const modalFormulario = document.getElementById('modalFormulario');
-            const formLogin = document.getElementById('formLogin');
-            const formCadastro = document.getElementById('formCadastro');
-            const titulo = document.getElementById('formTitulo');
-
-            modalOpcoes.style.display = 'none';
-            modalFormulario.style.display = 'flex';
-
-            if (tipo === 'cadastro') {
-                formLogin.classList.add('hidden');
-                formCadastro.classList.remove('hidden');
-                titulo.textContent = 'Cadastro';
-            } else {
-                formLogin.classList.remove('hidden');
-                formCadastro.classList.add('hidden');
-                titulo.textContent = 'Login';
-            }
-
-            modalFormulario.dataset.tipo = tipo;
-        }
-
-        window.alternarFormulario = function() {
-            const login = document.getElementById('formLogin');
-            const cadastro = document.getElementById('formCadastro');
-            const titulo = document.getElementById('formTitulo');
-
-            if (login.classList.contains('hidden')) {
-                login.classList.remove('hidden');
-                cadastro.classList.add('hidden');
-                titulo.textContent = 'Login';
-            } else {
-                login.classList.add('hidden');
-                cadastro.classList.remove('hidden');
-                titulo.textContent = 'Cadastro';
-            }
-        }
-
-        window.voltarEscolha = function() {
-            const modalFormulario = document.getElementById('modalFormulario');
-            const modalOpcoes = document.getElementById('modalOpcoes');
-            modalFormulario.style.display = 'none';
-            modalOpcoes.style.display = 'flex';
         }
 
         // Fechar modais ao clicar fora
