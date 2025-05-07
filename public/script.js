@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -25,7 +25,7 @@ let servicoSelecionado = '';
 let usuarioLogado = null;
 
 // Função para abrir o modal de opções
-function abrirModalOpcoes(servico) {
+window.abrirModalOpcoes = function(servico) {
     const modal = document.getElementById('modalOpcoes');
     modal.style.display = 'flex';
     servicoSelecionado = servico;
@@ -34,7 +34,7 @@ function abrirModalOpcoes(servico) {
 }
 
 // Função para abrir o formulário
-function abrirFormulario(tipo) {
+window.abrirFormulario = function(tipo) {
     const modalOpcoes = document.getElementById('modalOpcoes');
     const modalFormulario = document.getElementById('modalFormulario');
     const formLogin = document.getElementById('formLogin');
@@ -58,7 +58,7 @@ function abrirFormulario(tipo) {
 }
 
 // Alternar entre login e cadastro
-function alternarFormulario() {
+window.alternarFormulario = function() {
     const login = document.getElementById('formLogin');
     const cadastro = document.getElementById('formCadastro');
     const titulo = document.getElementById('formTitulo');
@@ -75,7 +75,7 @@ function alternarFormulario() {
 }
 
 // Voltar para a escolha entre prestar ou usar serviço
-function voltarEscolha() {
+window.voltarEscolha = function() {
     const modalFormulario = document.getElementById('modalFormulario');
     const modalOpcoes = document.getElementById('modalOpcoes');
     modalFormulario.style.display = 'none';
