@@ -116,7 +116,7 @@
             <h3 class="text-2xl font-playfair font-semibold mb-4" id="formTitulo">Login</h3>
 
             <!-- Login -->
-            <form id="formLogin" class="space-y-4">
+            <form id="formLogin" class="space-y-4" onsubmit="fazerLogin(event)">
                 <div class="form-group">
                     <label for="loginEmail">E-mail</label>
                     <input type="email" id="loginEmail" required>
@@ -177,7 +177,8 @@
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         // Firebase configuration
         const firebaseConfig = {
@@ -194,10 +195,231 @@
         const app = initializeApp(firebaseConfig);
         const analytics = getAnalytics(app);
         const db = getFirestore(app);
+        const auth = getAuth(app);
 
         // Make Firebase instances available globally
         window.firebaseApp = app;
         window.firebaseDb = db;
+        window.firebaseAuth = auth;
+
+        // Verificar estado da autenticação
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Usuário está logado
+                buscarDadosUsuario(user.uid);
+            } else {
+                // Usuário não está logado
+                window.usuarioLogado = null;
+                exibirPerfil();
+            }
+        });
+
+        // Função para buscar dados do usuário no Firestore
+        async function buscarDadosUsuario(uid) {
+            try {
+                const q = query(collection(db, "usuarios"), where("email", "==", auth.currentUser.email));
+                const querySnapshot = await getDocs(q);
+                
+                if (!querySnapshot.empty) {
+                    const userData = querySnapshot.docs[0].data();
+                    window.usuarioLogado = {
+                        uid: uid,
+                        nome: userData.nome,
+                        tipo: userData.tipo,
+                        servico: userData.servico
+                    };
+                    exibirPerfil();
+                }
+            } catch (error) {
+                console.error("Erro ao buscar dados do usuário:", error);
+            }
+        }
+
+        // Função para cadastrar usuário
+        window.cadastrarUsuario = async function(e) {
+            e.preventDefault();
+
+            const senha = document.getElementById('senha').value;
+            const confirmarSenha = document.getElementById('confirmarSenha').value;
+            const email = document.getElementById('email').value;
+
+            if (senha !== confirmarSenha) {
+                alert('As senhas não coincidem!');
+                return;
+            }
+
+            try {
+                // Criar usuário no Firebase Auth
+                const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+                const user = userCredential.user;
+
+                // Salvar dados adicionais no Firestore
+                await addDoc(collection(db, "usuarios"), {
+                    uid: user.uid,
+                    nome: document.getElementById('nome').value,
+                    dataNascimento: document.getElementById('dataNascimento').value,
+                    email: email,
+                    perguntaSecreta: document.getElementById('perguntaSecreta').value,
+                    respostaSecreta: document.getElementById('respostaSecreta').value,
+                    tipo: document.getElementById('modalFormulario').dataset.tipo,
+                    servico: window.servicoSelecionado,
+                    dataCadastro: new Date()
+                });
+
+                alert('Cadastro realizado com sucesso!');
+                
+                // Fechar o modal de cadastro e limpar o formulário
+                document.getElementById('modalFormulario').style.display = 'none';
+                document.getElementById('formCadastro').reset();
+
+            } catch (error) {
+                console.error("Erro ao cadastrar:", error);
+                let mensagem = "Erro ao cadastrar usuário. ";
+                
+                switch (error.code) {
+                    case 'auth/email-already-in-use':
+                        mensagem += "Este e-mail já está em uso.";
+                        break;
+                    case 'auth/invalid-email':
+                        mensagem += "E-mail inválido.";
+                        break;
+                    case 'auth/weak-password':
+                        mensagem += "A senha é muito fraca.";
+                        break;
+                    default:
+                        mensagem += "Por favor, tente novamente.";
+                }
+                
+                alert(mensagem);
+            }
+        }
+
+        // Função para fazer login
+        window.fazerLogin = async function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('loginEmail').value;
+            const senha = document.getElementById('loginSenha').value;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, senha);
+                // O onAuthStateChanged vai detectar o login e atualizar a interface
+            } catch (error) {
+                console.error("Erro no login:", error);
+                let mensagem = "Erro ao fazer login. ";
+                
+                switch (error.code) {
+                    case 'auth/user-not-found':
+                    case 'auth/wrong-password':
+                        mensagem += "E-mail ou senha incorretos.";
+                        break;
+                    case 'auth/invalid-email':
+                        mensagem += "E-mail inválido.";
+                        break;
+                    default:
+                        mensagem += "Por favor, tente novamente.";
+                }
+                
+                alert(mensagem);
+            }
+        }
+
+        // Exibir o perfil do usuário logado
+        window.exibirPerfil = function() {
+            const perfilContainer = document.getElementById('perfilContainer');
+            if (window.usuarioLogado) {
+                perfilContainer.innerHTML = `
+                    <div class="perfil-info">
+                        <p>Bem-vindo, ${window.usuarioLogado.nome}</p>
+                        <p>Tipo: ${window.usuarioLogado.tipo}</p>
+                        <p>Serviço: ${window.usuarioLogado.servico || 'Nenhum'}</p>
+                        <button onclick="fazerLogout()" class="btn btn-secondary mt-4">Sair</button>
+                    </div>
+                `;
+            } else {
+                perfilContainer.innerHTML = '';
+            }
+        }
+
+        // Função para fazer logout
+        window.fazerLogout = async function() {
+            try {
+                await auth.signOut();
+                window.usuarioLogado = null;
+                exibirPerfil();
+            } catch (error) {
+                console.error("Erro ao fazer logout:", error);
+                alert("Erro ao fazer logout. Por favor, tente novamente.");
+            }
+        }
+
+        // Make functions available globally
+        window.abrirModalOpcoes = function(servico) {
+            const modal = document.getElementById('modalOpcoes');
+            modal.style.display = 'flex';
+            window.servicoSelecionado = servico;
+            const titulo = modal.querySelector('h3');
+            titulo.textContent = `${servico} - Como deseja proceder?`;
+        }
+
+        window.abrirFormulario = function(tipo) {
+            const modalOpcoes = document.getElementById('modalOpcoes');
+            const modalFormulario = document.getElementById('modalFormulario');
+            const formLogin = document.getElementById('formLogin');
+            const formCadastro = document.getElementById('formCadastro');
+            const titulo = document.getElementById('formTitulo');
+
+            modalOpcoes.style.display = 'none';
+            modalFormulario.style.display = 'flex';
+
+            if (tipo === 'cadastro') {
+                formLogin.classList.add('hidden');
+                formCadastro.classList.remove('hidden');
+                titulo.textContent = 'Cadastro';
+            } else {
+                formLogin.classList.remove('hidden');
+                formCadastro.classList.add('hidden');
+                titulo.textContent = 'Login';
+            }
+
+            modalFormulario.dataset.tipo = tipo;
+        }
+
+        window.alternarFormulario = function() {
+            const login = document.getElementById('formLogin');
+            const cadastro = document.getElementById('formCadastro');
+            const titulo = document.getElementById('formTitulo');
+
+            if (login.classList.contains('hidden')) {
+                login.classList.remove('hidden');
+                cadastro.classList.add('hidden');
+                titulo.textContent = 'Login';
+            } else {
+                login.classList.add('hidden');
+                cadastro.classList.remove('hidden');
+                titulo.textContent = 'Cadastro';
+            }
+        }
+
+        window.voltarEscolha = function() {
+            const modalFormulario = document.getElementById('modalFormulario');
+            const modalOpcoes = document.getElementById('modalOpcoes');
+            modalFormulario.style.display = 'none';
+            modalOpcoes.style.display = 'flex';
+        }
+
+        // Fechar modais ao clicar fora
+        window.onclick = function(event) {
+            const modalOpcoes = document.getElementById('modalOpcoes');
+            const modalFormulario = document.getElementById('modalFormulario');
+
+            if (event.target === modalOpcoes) {
+                modalOpcoes.style.display = 'none';
+            }
+            if (event.target === modalFormulario) {
+                modalFormulario.style.display = 'none';
+            }
+        }
     </script>
 
     <!-- Seu script principal -->
