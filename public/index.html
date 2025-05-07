@@ -172,9 +172,35 @@
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js"></script>
-    <script type="module" src="https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js"></script>
+    <!-- Scripts do Firebase -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAYxDkIixX2krkTMxHJ9Y3tT1AYBXzl4yI",
+            authDomain: "model-life-787ad.firebaseapp.com",
+            projectId: "model-life-787ad",
+            storageBucket: "model-life-787ad.firebasestorage.app",
+            messagingSenderId: "891446817307",
+            appId: "1:891446817307:web:920234012e2425b44a7ebe",
+            measurementId: "G-GRW3RPQK7P"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const db = getFirestore(app);
+
+        // Make Firebase instances available globally
+        window.firebaseApp = app;
+        window.firebaseDb = db;
+    </script>
+
+    <!-- Seu script principal -->
     <script type="module" src="script.js"></script>
 
     <!-- Script para gerar as imagens caindo -->
