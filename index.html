@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Life - Clínica Modelar</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style/style.css">
+
+    <style>
+        .falling-images-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .falling-image {
+            position: absolute;
+            top: -100px;
+            animation-name: fall;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+            opacity: 0.25;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(110vh) rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body> <!-- Início do corpo da página -->
+
+    <div class="falling-images-container" id="fallingImagesContainer"></div>
+
+    <!-- Hero Section -->
+    <div class="container mx-auto px-4 py-12">
+        <div class="flex flex-col lg:flex-row justify-between items-center gap-12 mb-24">
+            <div class="text-center lg:text-left max-w-md">
+                <div class="mb-6"></div>
+                <h1 class="text-4xl font-playfair font-bold text-[#1B3B39] mb-4"></h1>
+                <p class="text-[#1B3B39] text-lg"></p>
+            </div>
+        </div>
+
+        <!-- Seção de Serviços -->
+        <section id="servicos" class="mt-80 mb-32 relative z-10">
+            <div class="flex items-center justify-between mb-10 flex-wrap gap-4">
+
+                <!-- Lado Esquerdo -->
+                <div class="flex gap-4">
+                    <button onclick="abrirFormulario('cadastro')" class="w-40 h-24 rounded-2xl bg-[#b2e0db] text-[#1B3B39] font-semibold hover:bg-[#96cbc5] transition">Cadastro</button>
+                    <button onclick="abrirFormulario('login')" class="w-40 h-24 rounded-2xl bg-[#b2e0db] text-[#1B3B39] font-semibold hover:bg-[#96cbc5] transition">Login</button>
+                </div>
+            
+                <!-- Título Centralizado -->
+                <h2 class="text-4xl font-bold text-[#1B3B39] text-center mx-auto order-first lg:order-none w-full lg:w-auto">Nossos Serviços</h2>
+            
+                <!-- Lado Direito -->
+                <div class="flex gap-4">
+                    <button onclick="abrirFormulario('prestar')" class="w-40 h-24 rounded-2xl bg-[#b2e0db] text-[#1B3B39] font-semibold hover:bg-[#96cbc5] transition text-sm">Prestar<br>Serviço</button>
+                    <button onclick="abrirFormulario('usar')" class="w-40 h-24 rounded-2xl bg-[#b2e0db] text-[#1B3B39] font-semibold hover:bg-[#96cbc5] transition text-sm">Usar<br>Serviço</button>
+                </div>
+            </div>
+
+            <!-- Blocos de serviço -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 relative z-10">
+                <div class="service-card bg-white p-8 cursor-pointer text-center" onclick="abrirModalOpcoes('Psicologia')">
+                    <img src="style/imagens/icon psico.png" alt="Psicologia" class="w-32 h-32 mx-auto mb-6">
+                    <h3 class="text-2xl font-bold mb-4 text-[#1B3B39]">Psicologia</h3>
+                    <p class="text-gray-600">Atendimento desenvolvimento Infantil</p>
+                </div>
+                <div class="service-card bg-white p-8 cursor-pointer text-center" onclick="abrirModalOpcoes('Terapia Ocupacional')">
+                    <img src="style/imagens/icon terapia.png" alt="Terapia Ocupacional" class="w-40 h-40 mx-auto mb-6">
+                    <h3 class="text-2xl font-bold mb-4 text-[#1B3B39]">Terapia Ocupacional</h3>
+                    <p class="text-gray-600">Promoção de habilidades funcionais</p>
+                </div>
+                <div class="service-card bg-white p-8 cursor-pointer text-center" onclick="abrirModalOpcoes('Fonoaudiologia')">
+                    <img src="style/imagens/icon fono.png" alt="Fonoaudiologia" class="w-32 h-32 mx-auto mb-6">
+                    <h3 class="text-2xl font-bold mb-4 text-[#1B3B39]">Fonoaudiologia</h3>
+                    <p class="text-gray-600">Avaliação e tratamento comunicação e linguagem</p>
+                </div>
+                <div class="service-card bg-white p-8 cursor-pointer text-center" onclick="abrirModalOpcoes('Apoio Pedagógico')">
+                    <img src="style/imagens/icon pedagogia.png" alt="Apoio Pedagógico" class="w-32 h-32 mx-auto mb-6">
+                    <h3 class="text-2xl font-bold mb-4 text-[#1B3B39]">Apoio Pedagógico</h3>
+                    <p class="text-gray-600">Reforço escolar individualizado</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal de Opções -->
+    <div id="modalOpcoes" class="modal">
+        <div class="modal-content text-center">
+            <h3 class="text-2xl font-bold mb-4">Como deseja proceder?</h3>
+            <p class="mb-6">Você deseja prestar o serviço ou usar nossos serviços?</p>
+            <div class="flex justify-center gap-4">
+                <button class="btn btn-primary" onclick="abrirFormulario('prestar')">Prestar Serviço</button>
+                <button class="btn btn-secondary" onclick="abrirFormulario('usar')">Usar Serviços</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Formulário -->
+    <div id="modalFormulario" class="modal">
+        <div class="modal-content">
+            <button onclick="voltarEscolha()" class="text-sm text-[#147a8d] underline mb-2">&larr; Voltar</button>
+            <h3 class="text-2xl font-playfair font-semibold mb-4" id="formTitulo">Login</h3>
+
+            <!-- Login -->
+            <form id="formLogin" class="space-y-4">
+                <div class="form-group">
+                    <label for="loginEmail">E-mail</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginSenha">Senha</label>
+                    <input type="password" id="loginSenha" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-full">Entrar</button>
+            </form>
+
+            <!-- Cadastro -->
+            <form id="formCadastro" class="space-y-4 hidden">
+                <div class="form-group">
+                    <label for="nome">Nome Completo</label>
+                    <input type="text" id="nome" required>
+                </div>
+                <div class="form-group">
+                    <label for="dataNascimento">Data de Nascimento</label>
+                    <input type="date" id="dataNascimento" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmarSenha">Confirmar Senha</label>
+                    <input type="password" id="confirmarSenha" required>
+                </div>
+                <div class="form-group">
+                    <label for="perguntaSecreta">Pergunta Secreta</label>
+                    <select id="perguntaSecreta" required>
+                        <option value="">Selecione uma pergunta</option>
+                        <option value="primeiroAmigo">Qual foi seu primeiro amigo?</option>
+                        <option value="corFavorita">Qual sua cor favorita?</option>
+                        <option value="itemFavorito">Qual seu item favorito?</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="respostaSecreta">Resposta</label>
+                    <input type="text" id="respostaSecreta" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-full">Cadastrar</button>
+            </form>
+
+            <div class="text-center mt-6">
+                <button onclick="alternarFormulario()" class="text-[#147a8d] underline">Ainda não tem conta? Cadastrar-se</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+
+    <!-- Script para gerar as imagens caindo -->
+    <script>
+        const container = document.getElementById('fallingImagesContainer');
+        const totalImages = 40;
+        const imageSources = [
+            'style/imagens/peca-branca-do-puzzle.png',
+            'style/imagens/cerebro.png',
+            'style/imagens/ferramenta-lapis.png'
+        ];
+
+        for (let i = 0; i < totalImages; i++) {
+            const img = document.createElement('img');
+            img.src = imageSources[Math.floor(Math.random() * imageSources.length)];
+            img.classList.add('falling-image');
+            img.style.left = Math.random() * 100 + 'vw';
+            img.style.animationDuration = (5 + Math.random() * 10) + 's';
+            img.style.animationDelay = (Math.random() * 10) + 's';
+            img.style.width = (20 + Math.random() * 40) + 'px';
+            container.appendChild(img);
+        }
+    </script>
+
+</body>
+</
